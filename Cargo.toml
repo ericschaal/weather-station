@@ -1,0 +1,51 @@
+[package]
+name = "weather-station"
+version = "0.1.0"
+authors = ["Eric <ericschaal@icloud.com>"]
+edition = "2021"
+resolver = "2"
+rust-version = "1.66"
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+
+default = ["std", "hal", "esp-idf-sys/native"]
+
+
+pio = ["esp-idf-sys/pio"]
+all = ["std", "nightly", "experimental", "embassy"]
+hal = ["esp-idf-hal", "embedded-svc", "esp-idf-svc"]
+std = ["alloc", "esp-idf-sys/std", "esp-idf-sys/binstart", "embedded-svc?/std", "esp-idf-hal?/std", "esp-idf-svc?/std"]
+alloc = ["embedded-svc?/alloc", "esp-idf-hal?/alloc", "esp-idf-svc?/alloc"]
+nightly = ["embedded-svc?/nightly", "esp-idf-svc?/nightly"] # Future: "esp-idf-hal?/nightly"
+experimental = ["embedded-svc?/experimental", "esp-idf-svc?/experimental"]
+embassy = ["esp-idf-hal?/embassy-sync", "esp-idf-hal?/critical-section", "esp-idf-hal?/edge-executor", "esp-idf-svc?/embassy-time-driver", "esp-idf-svc?/embassy-time-isr-queue"]
+
+[dependencies]
+log = { version = "0.4.17", default-features = false }
+esp-idf-sys = { version = "0.33", default-features = false }
+esp-idf-hal = { version = "0.41", optional = true, default-features = false }
+esp-idf-svc = { version = "0.46", optional = true, default-features = false }
+embedded-svc = { version = "0.25", optional = true, default-features = false }
+
+anyhow = "1.0.75"
+embedded-graphics = "0.8.1"
+embedded-hal = "1.0.0-alpha.10"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml-cfg = "0.1.3"
+
+u8g2-fonts = { version = "0.3.0", features = ["embedded_graphics_textstyle"] }
+tinyqoi = "0.2.0"
+time = { version = "0.3.23", features = ["std", "formatting"] }
+itertools = "0.11.0"
+
+[build-dependencies]
+embuild = "0.31.2"
