@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::thread;
 use std::time::Duration;
 use anyhow::Result;
@@ -8,23 +9,22 @@ use embedded_graphics::{
     image::*
 };
 use embedded_graphics::pixelcolor::BinaryColor;
+use itertools::Itertools;
 use u8g2_fonts::{
     FontRenderer,
     types::*,
     fonts,
 };
+use crate::chart::scales::linear::ScaleLinear;
 use crate::config::CONFIG;
-use crate::display::display::{Display, DISPLAY_HEIGHT, DISPLAY_WIDTH};
-use crate::icons::{
-    WeatherIconSet,
-};
+use crate::display::{Display, DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use crate::icons::{WeatherIconSet};
 use crate::owm::{
     api::fetch_owm_report,
-    model::{CurrentWeather,DailyForecast, HourlyForecast, WeatherData},
-    icons::get_icon_for_current_weather,
+    model::{DailyForecast, WeatherData},
 };
-use crate::owm::icons::get_icon_for_daily_forecast;
-
+use crate::owm::icons::{get_icon_for_current_weather, get_icon_for_daily_forecast};
+use crate::owm::model::{CurrentWeather, HourlyForecast};
 const MARGIN: u32 = 8;
 // Seems like icons have a bunch of padding on the horizontal axis
 // This is a dirty attempt to gain some screen space
@@ -34,6 +34,11 @@ const IMG_ICON_PADDING: u32 = 16;
 pub struct WeatherStation {
     display: Display,
     rect: DisplayRect,
+}
+
+pub struct Icons {
+    pub large: WeatherIconSet,
+    pub small: WeatherIconSet,
 }
 
 pub struct DisplayRect {
@@ -51,8 +56,7 @@ pub struct DisplayRect {
 }
 
 impl WeatherStation {
-    pub fn new(display: Display) -> Self {
-
+    pub fn new(display: Display) -> Result<Self> {
         let viewport_size = Size::new(DISPLAY_WIDTH - MARGIN, DISPLAY_HEIGHT - MARGIN);
         let current_icon_size = Size::new(196 - IMG_ICON_PADDING, 196);
         let current_temp_size = Size::new(196, current_icon_size.height);
@@ -109,21 +113,23 @@ impl WeatherStation {
             chart,
         };
 
-        WeatherStation {
+
+        Ok(WeatherStation {
             display,
             rect
-        }
+        })
     }
     pub fn run(&mut self) -> Result<()> {
         loop {
             let weather = fetch_owm_report()?;
 
+            self.display.wake_up()?;
             self.display.clear(BinaryColor::Off)?;
             self.draw_weather_report(weather)?;
 
             self.display.flush_and_refresh()?;
-
-            thread::sleep(Duration::from_secs(60));
+            self.display.sleep()?;
+            thread::sleep(Duration::from_secs(10 * 60));
         }
     }
 
@@ -144,13 +150,13 @@ impl WeatherStation {
         self.current_temp_unit()?;
         self.date_and_location(dt, location_name)?;
         self.daily_forecast(&small_icon_set, &daily)?;
+        self.draw_chart(weather.timezone_offset, &hourly)?;
 
         self.debug_draw_rect()?;
 
 
         Ok(())
     }
-
     fn current_weather_icon(&mut self, icons: &WeatherIconSet, current: &CurrentWeather) -> Result<()> {
         let icon = get_icon_for_current_weather(icons, current);
         Image::new(icon, self.rect.current_weather
@@ -172,7 +178,7 @@ impl WeatherStation {
             self.rect.current_temp_unit.center() - offset - circle_center,
             circle_diameter
         ).into_styled(unit_style)
-            .draw(&mut self.display)?;
+            .draw(&mut self.display.color_converted())?;
 
         Ok(())
     }
@@ -186,7 +192,7 @@ impl WeatherStation {
             VerticalPosition::Center,
             HorizontalAlignment::Center,
             FontColor::Transparent(BinaryColor::On),
-            &mut self.display,
+            &mut self.display.color_converted(),
         ).unwrap();
 
         Ok(())
@@ -201,7 +207,7 @@ impl WeatherStation {
             VerticalPosition::Center,
             HorizontalAlignment::Center,
             FontColor::Transparent(BinaryColor::On),
-            &mut self.display,
+            &mut self.display.color_converted(),
         ).unwrap();
 
         Ok(())
@@ -260,7 +266,7 @@ impl WeatherStation {
                 VerticalPosition::Bottom,
                 HorizontalAlignment::Center,
                 FontColor::Transparent(BinaryColor::On),
-                &mut self.display.color_converted(),
+                &mut self.display,
             ).unwrap();
 
             font_small.render_aligned(
@@ -274,6 +280,122 @@ impl WeatherStation {
 
 
         }
+        Ok(())
+    }
+
+    fn  draw_chart(&mut self, timezone_offset: i64, forecast: &Vec<HourlyForecast>) -> Result<()> {
+        let app_config = CONFIG;
+
+        let temp = forecast.iter().map(|hourly| {
+            Point { x: (hourly.dt) as i32, y: hourly.temp.round() as i32 }
+        })
+            .take(app_config.hours_to_draw)
+            .collect::<Vec<_>>();
+
+        // From 0 to 100%
+        let precipitation = forecast.iter().map(|hourly| {
+            Point { x: (hourly.dt) as i32, y: hourly.pop as i32 * 100 }
+        })
+            .take(app_config.hours_to_draw)
+            .collect::<Vec<_>>();
+
+
+        let (x_min, x_max) = temp.iter().map(|p| p.x).minmax().into_option().unwrap();
+        let (temp_min, temp_max) = temp.iter().map(|p| p.y).minmax().into_option().unwrap();
+
+        // Try to have a 20° range
+        let temp_range = {
+            let new_min = temp_min;
+            let new_max = max(temp_max, new_min + 20);
+
+            new_min..=new_max
+        };
+
+        let precip_range = {
+            0.0..=100.0
+        };
+
+        // Layout rectangles
+        let margin: u32 = 4;
+        let axis_rec_dim = 16;
+        let curve_size = Size::new(
+            self.rect.chart.size.width - 2 * margin - 2 * axis_rec_dim,
+            self.rect.chart.size.height - 2 * margin -  axis_rec_dim
+        );
+
+        let left_axis_rec = Rectangle::new(
+            self.rect.chart.top_left + Point::new(margin as i32, margin as i32),
+            Size::new(axis_rec_dim, curve_size.height)
+        );
+
+
+        let curve_rec = Rectangle::new(
+            left_axis_rec.anchor_point(AnchorPoint::TopRight),
+            Size::new(curve_size.width, curve_size.height)
+        );
+
+        let bottom_axis_rec = Rectangle::new(
+            curve_rec.anchor_point(AnchorPoint::BottomLeft),
+            Size::new(curve_size.width, axis_rec_dim)
+        );
+
+        let right_axis_rec = Rectangle::new(
+            curve_rec.anchor_point(AnchorPoint::TopRight),
+            Size::new(axis_rec_dim, curve_size.height)
+        );
+
+        let style = PrimitiveStyleBuilder::new()
+            .stroke_color(BinaryColor::On)
+            .stroke_width(1)
+            .build();
+
+        curve_rec.into_styled(style).draw(&mut self.display.color_converted())?;
+        left_axis_rec.into_styled(style).draw(&mut self.display.color_converted())?;
+        right_axis_rec.into_styled(style).draw(&mut self.display.color_converted())?;
+        curve_rec.into_styled(style).draw(&mut self.display.color_converted())?;
+        bottom_axis_rec.into_styled(style).draw(&mut self.display.color_converted())?;
+
+        for row_index in 0..5 {
+            let spacing = curve_rec.size.height / 5;
+            let v_offset = Point::new(0, (spacing * row_index) as i32);
+            Line::new(
+                curve_rec.top_left + v_offset,
+                curve_rec.anchor_point(AnchorPoint::TopRight) + v_offset
+            ).into_styled(style)
+                .draw(&mut self.display.color_converted())?;
+        }
+
+        let x_scale = ScaleLinear::new()
+            .set_domain(vec![
+                x_min as f32,
+                x_max as f32
+            ])
+            .set_range(vec![
+                curve_rec.anchor_point(AnchorPoint::TopLeft).x as f32,
+                curve_rec.anchor_point(AnchorPoint::TopRight).x as f32
+            ]);
+
+        let temp_scale = ScaleLinear::new()
+            .set_domain(vec![
+                *temp_range.end() as f32,
+                *temp_range.start() as f32
+            ])
+            .set_range(vec![
+                curve_rec.anchor_point(AnchorPoint::TopRight).x as f32,
+                curve_rec.anchor_point(AnchorPoint::BottomRight).x as f32
+            ]);
+
+        let precip_scale = ScaleLinear::new()
+            .set_domain(vec![
+                *precip_range.end() as f32,
+                *precip_range.start() as f32
+            ])
+            .set_range(vec![
+                curve_rec.anchor_point(AnchorPoint::TopRight).x as f32,
+                curve_rec.anchor_point(AnchorPoint::BottomRight).x as f32
+            ]);
+
+
         Ok(())
     }
 

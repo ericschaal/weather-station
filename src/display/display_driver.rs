@@ -1,10 +1,10 @@
 use std::time::Duration;
 use anyhow::Result;
-use esp_idf_hal::{gpio::*, delay::*, spi::*, delay};
+use esp_idf_hal::{gpio::*, delay::*, spi::*};
 use esp_idf_sys::EspError;
 use log::*;
 use crate::display::command::Command;
-use crate::display::display::{BUFFER_SIZE};
+use crate::display::{BUFFER_SIZE};
 use crate::display::traits;
 
 pub struct DisplayDriver {
@@ -66,6 +66,9 @@ impl DisplayDriver
 
         self.cmd_with_data(Command::TconSetting, &[0x22])?;
 
+
+        self.cmd_with_data(Command::SpiFlashControl, &[0x00, 0x00, 0x00, 0x00])?;
+
         info!("Display initialized");
 
         Ok(())
@@ -73,8 +76,6 @@ impl DisplayDriver
 
     fn wait_until_idle(&mut self) -> Result<(), EspError> {
         info!("Waiting for display to become idle");
-        self.cmd(Command::GetStatus)?;
-
         while self.is_busy() {
             if !self.config.delay.is_zero() {
                 Delay::delay_ms(self.config.delay.as_millis() as u32);
@@ -122,14 +123,26 @@ impl DisplayDriver
         self.refresh()
     }
 
+    pub fn sleep(&mut self) -> Result<(), EspError> {
+        info!("Sleeping display");
+        self.cmd(Command::PowerOff)?;
+        self.wait_until_idle()?;
+        self.cmd_with_data(Command::DeepSleep, &[0xA5])
+    }
+
+    pub fn wake_up(&mut self) -> Result<(), EspError> {
+        info!("Waking up display");
+        self.init()
+    }
+
     pub fn reset(&mut self) -> Result<(), EspError> {
-        let _ = self.pins.rst.set_high()?;
+        self.pins.rst.set_high()?;
         Delay::delay_ms(200);
 
-        let _ = self.pins.rst.set_low()?;
+        self.pins.rst.set_low()?;
         Delay::delay_ms(2);
 
-        let _ = self.pins.rst.set_high()?;
+        self.pins.rst.set_high()?;
         Delay::delay_ms(200);
 
         Ok(())
