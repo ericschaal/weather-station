@@ -1,21 +1,16 @@
-pub mod display_driver;
 pub mod command;
+pub mod display_driver;
 pub mod traits;
 
-use anyhow::Result;
-use embedded_graphics::{
-    geometry::*,
-    Pixel,
-    pixelcolor::*,
-    prelude::*,
-    primitives::{Rectangle},
-};
-use esp_idf_sys::EspError;
 use crate::display::display_driver::DisplayDriver;
+use anyhow::Result;
+use embedded_graphics::{geometry::*, pixelcolor::*, prelude::*, primitives::Rectangle, Pixel};
+use esp_idf_sys::EspError;
 
 pub const DISPLAY_HEIGHT: u32 = 480;
 pub const DISPLAY_WIDTH: u32 = 800;
-const DISPLAY_AREA: Rectangle = Rectangle::new(Point::zero(), Size::new(DISPLAY_WIDTH, DISPLAY_HEIGHT));
+const DISPLAY_AREA: Rectangle =
+    Rectangle::new(Point::zero(), Size::new(DISPLAY_WIDTH, DISPLAY_HEIGHT));
 const DEFAULT_BACKGROUND_COLOR: BinaryColor = BinaryColor::Off;
 const BITS_PER_PIXEL: u32 = 1;
 pub const BUFFER_SIZE: usize = (DISPLAY_WIDTH * DISPLAY_HEIGHT / (8 * BITS_PER_PIXEL)) as usize;
@@ -34,7 +29,7 @@ impl Display {
     pub fn new(driver: DisplayDriver, config: DisplayConfig) -> Result<Display, EspError> {
         Ok(Display {
             driver,
-            pixels: vec![BinaryColor::Off.into_storage() ; BUFFER_SIZE],
+            pixels: vec![BinaryColor::Off.into_storage(); BUFFER_SIZE],
             config,
         })
     }
@@ -58,14 +53,17 @@ impl Display {
 
     pub fn clear_screen(&mut self, clear_frame_buffer: bool) -> Result<(), EspError> {
         if clear_frame_buffer {
-            self.pixels = vec![BinaryColor::Off.into_storage() ; BUFFER_SIZE];
+            self.pixels = vec![BinaryColor::Off.into_storage(); BUFFER_SIZE];
         }
         self.driver.clear_screen()
     }
 
     pub fn set_pixel(&mut self, point: Point, color: BinaryColor) {
         assert!(
-            point.x >= 0 && point.y >= 0 && point.x < DISPLAY_WIDTH as i32 && point.y < DISPLAY_HEIGHT as i32,
+            point.x >= 0
+                && point.y >= 0
+                && point.x < DISPLAY_WIDTH as i32
+                && point.y < DISPLAY_HEIGHT as i32,
             "point must be inside display bounding box: {:?}",
             point
         );
@@ -133,8 +131,8 @@ impl DrawTarget for Display {
     type Color = BinaryColor;
     type Error = core::convert::Infallible;
     fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
-        where
-            I: IntoIterator<Item = Pixel<Self::Color>>,
+    where
+        I: IntoIterator<Item = Pixel<Self::Color>>,
     {
         for pixel in pixels.into_iter() {
             let Pixel(point, color) = pixel;
@@ -144,5 +142,4 @@ impl DrawTarget for Display {
 
         Ok(())
     }
-
 }

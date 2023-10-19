@@ -1,11 +1,11 @@
-use std::time::Duration;
+use crate::display::command::Command;
+use crate::display::traits;
+use crate::display::BUFFER_SIZE;
 use anyhow::Result;
-use esp_idf_hal::{gpio::*, delay::*, spi::*};
+use esp_idf_hal::{delay::*, gpio::*, spi::*};
 use esp_idf_sys::EspError;
 use log::*;
-use crate::display::command::Command;
-use crate::display::{BUFFER_SIZE};
-use crate::display::traits;
+use std::time::Duration;
 
 pub struct DisplayDriver {
     spi: SpiDeviceDriver<'static, SpiDriver<'static>>,
@@ -24,9 +24,12 @@ pub struct DisplayDriverConfig {
     pub delay: Duration,
 }
 
-impl DisplayDriver
-{
-    pub fn new(driver: SpiDeviceDriver<'static, SpiDriver<'static>>, pins: DisplayPins, config: DisplayDriverConfig) -> DisplayDriver {
+impl DisplayDriver {
+    pub fn new(
+        driver: SpiDeviceDriver<'static, SpiDriver<'static>>,
+        pins: DisplayPins,
+        config: DisplayDriverConfig,
+    ) -> DisplayDriver {
         DisplayDriver {
             spi: driver,
             pins,
@@ -65,7 +68,6 @@ impl DisplayDriver
         self.cmd_with_data(Command::VcomAndDataIntervalSetting, &[0x10, 0x07])?;
 
         self.cmd_with_data(Command::TconSetting, &[0x22])?;
-
 
         self.cmd_with_data(Command::SpiFlashControl, &[0x00, 0x00, 0x00, 0x00])?;
 
@@ -114,7 +116,6 @@ impl DisplayDriver
     }
 
     pub fn clear_screen(&mut self) -> Result<(), EspError> {
-
         info!("Clearing screen");
 
         self.cmd_with_data(Command::DataStartTransmission1, &[0x00; BUFFER_SIZE])?;
@@ -147,5 +148,4 @@ impl DisplayDriver
 
         Ok(())
     }
-
 }

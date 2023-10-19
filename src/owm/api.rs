@@ -1,8 +1,7 @@
 use crate::config::CONFIG;
-use anyhow::{Result};
 use crate::http_client::get;
 use crate::owm::model::WeatherData;
-
+use anyhow::Result;
 
 pub fn fetch_owm_report() -> Result<WeatherData> {
     let app_config = CONFIG;

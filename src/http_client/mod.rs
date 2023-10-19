@@ -1,8 +1,8 @@
-use std::str;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use embedded_svc::http::client::Client;
 use embedded_svc::io::Read;
 use esp_idf_svc::http::client::{Configuration, EspHttpConnection};
+use std::str;
 
 pub fn get(url: impl AsRef<str>) -> Result<String> {
     let connection = EspHttpConnection::new(&Configuration {

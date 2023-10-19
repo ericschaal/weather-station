@@ -13,5 +13,4 @@ build-std = ["std", "panic_abort"]
 [env]
 # Note: these variables are not used when using pio builder (`cargo build --features pio`)
 ESP_IDF_VERSION = "v5.1.1"
-LIBCLANG_PATH = "/home/eschaal/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-15.0.0-20221201/esp-clang/lib"
 

@@ -1,8 +1,9 @@
-pub mod display;
-pub mod wifi;
-pub mod owm;
+pub mod bme68x;
+pub mod chart;
 pub mod config;
-pub mod station;
+pub mod display;
 pub mod http_client;
 pub mod icons;
-pub mod chart;
+pub mod owm;
+pub mod station;
+pub mod wifi;

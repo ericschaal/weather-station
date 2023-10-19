@@ -1,10 +1,8 @@
 use anyhow::{bail, Result};
-use embedded_svc::wifi::{
-    AuthMethod, ClientConfiguration, Configuration,
-};
+use embedded_svc::wifi::{AuthMethod, ClientConfiguration, Configuration};
 use esp_idf_hal::peripheral;
-use esp_idf_svc::{eventloop::EspSystemEventLoop, wifi::BlockingWifi, wifi::EspWifi};
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
+use esp_idf_svc::{eventloop::EspSystemEventLoop, wifi::BlockingWifi, wifi::EspWifi};
 use log::info;
 
 pub fn wifi(
@@ -12,7 +10,7 @@ pub fn wifi(
     pass: &str,
     modem: impl peripheral::Peripheral<P = esp_idf_hal::modem::Modem> + 'static,
     sysloop: EspSystemEventLoop,
-    nvs: Option<EspDefaultNvsPartition>
+    nvs: Option<EspDefaultNvsPartition>,
 ) -> Result<Box<EspWifi<'static>>> {
     let mut auth_method = AuthMethod::WPA2Personal;
     if ssid.is_empty() {
@@ -24,7 +22,6 @@ pub fn wifi(
     }
 
     let mut esp_wifi = EspWifi::new(modem, sysloop.clone(), nvs)?;
-
 
     let mut wifi = BlockingWifi::wrap(&mut esp_wifi, sysloop)?;
 
@@ -54,15 +51,13 @@ pub fn wifi(
         None
     };
 
-    wifi.set_configuration(&Configuration::Client(
-        ClientConfiguration {
-            ssid: ssid.into(),
-            password: pass.into(),
-            channel,
-            auth_method,
-            ..Default::default()
-        }
-    ))?;
+    wifi.set_configuration(&Configuration::Client(ClientConfiguration {
+        ssid: ssid.into(),
+        password: pass.into(),
+        channel,
+        auth_method,
+        ..Default::default()
+    }))?;
 
     info!("Connecting wifi...");
 

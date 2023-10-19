@@ -1,5 +1,5 @@
-pub mod linear;
 pub mod band;
+pub mod linear;
 
 #[derive(PartialEq)]
 pub enum ScaleType {

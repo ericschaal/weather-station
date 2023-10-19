@@ -1,4 +1,4 @@
-use anyhow::{Result};
+use anyhow::Result;
 use tinyqoi::Qoi;
 
 pub struct IconSet {
@@ -65,7 +65,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-cloud"),
                 windy: large_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let few_clouds = WeatherIcon {
             day: IconSet {
@@ -79,7 +79,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-cloud"),
                 windy: large_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let scattered = WeatherIcon {
             day: IconSet {
@@ -93,7 +93,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-cloud"),
                 windy: large_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let overcast = WeatherIcon {
             day: IconSet {
@@ -107,7 +107,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-cloudy"),
                 windy: large_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let snow = WeatherIcon {
             day: IconSet {
@@ -121,7 +121,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-snow"),
                 windy: large_icon!("wi-snow-wind"),
-            }
+            },
         };
         let rain = WeatherIcon {
             day: IconSet {
@@ -135,7 +135,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-rain"),
                 windy: large_icon!("wi-rain-wind"),
-            }
+            },
         };
         let rain_mix = WeatherIcon {
             day: IconSet {
@@ -149,7 +149,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-rain-mix"),
                 windy: large_icon!("wi-rain-mix"),
-            }
+            },
         };
         let drizzle = WeatherIcon {
             day: IconSet {
@@ -163,7 +163,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-showers"),
                 windy: large_icon!("wi-showers"),
-            }
+            },
         };
         let thunderstorm = WeatherIcon {
             day: IconSet {
@@ -177,7 +177,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-thunderstorm"),
                 windy: large_icon!("wi-thunderstorm"),
-            }
+            },
         };
         let fog = WeatherIcon {
             day: IconSet {
@@ -191,7 +191,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-fog"),
                 windy: large_icon!("wi-fog"),
-            }
+            },
         };
         let smoke = WeatherIcon {
             day: IconSet {
@@ -205,7 +205,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-smoke"),
                 windy: large_icon!("wi-smoke"),
-            }
+            },
         };
         let dust = WeatherIcon {
             day: IconSet {
@@ -219,7 +219,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-dust"),
                 windy: large_icon!("wi-dust"),
-            }
+            },
         };
         let sand = WeatherIcon {
             day: IconSet {
@@ -233,7 +233,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-sandstorm"),
                 windy: large_icon!("wi-sandstorm"),
-            }
+            },
         };
         let squalls = WeatherIcon {
             day: IconSet {
@@ -247,7 +247,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-cloudy-gusts"),
                 windy: large_icon!("wi-cloudy-gusts"),
-            }
+            },
         };
         let tornado = WeatherIcon {
             day: IconSet {
@@ -261,7 +261,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-tornado"),
                 windy: large_icon!("wi-tornado"),
-            }
+            },
         };
         let volcanic = WeatherIcon {
             day: IconSet {
@@ -275,7 +275,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: large_icon!("wi-volcano"),
                 windy: large_icon!("wi-volcano"),
-            }
+            },
         };
 
         Ok(Self {
@@ -313,7 +313,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-cloud"),
                 windy: small_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let few_clouds = WeatherIcon {
             day: IconSet {
@@ -327,7 +327,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-cloud"),
                 windy: small_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let scattered = WeatherIcon {
             day: IconSet {
@@ -341,7 +341,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-cloud"),
                 windy: small_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let overcast = WeatherIcon {
             day: IconSet {
@@ -355,7 +355,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-cloudy"),
                 windy: small_icon!("wi-cloudy-windy"),
-            }
+            },
         };
         let snow = WeatherIcon {
             day: IconSet {
@@ -369,7 +369,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-snow"),
                 windy: small_icon!("wi-snow-wind"),
-            }
+            },
         };
         let rain = WeatherIcon {
             day: IconSet {
@@ -383,7 +383,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-rain"),
                 windy: small_icon!("wi-rain-wind"),
-            }
+            },
         };
         let rain_mix = WeatherIcon {
             day: IconSet {
@@ -397,7 +397,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-rain-mix"),
                 windy: small_icon!("wi-rain-mix"),
-            }
+            },
         };
         let drizzle = WeatherIcon {
             day: IconSet {
@@ -411,7 +411,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-showers"),
                 windy: small_icon!("wi-showers"),
-            }
+            },
         };
         let thunderstorm = WeatherIcon {
             day: IconSet {
@@ -425,7 +425,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-thunderstorm"),
                 windy: small_icon!("wi-thunderstorm"),
-            }
+            },
         };
         let fog = WeatherIcon {
             day: IconSet {
@@ -439,7 +439,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-fog"),
                 windy: small_icon!("wi-fog"),
-            }
+            },
         };
         let smoke = WeatherIcon {
             day: IconSet {
@@ -453,7 +453,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-smoke"),
                 windy: small_icon!("wi-smoke"),
-            }
+            },
         };
         let dust = WeatherIcon {
             day: IconSet {
@@ -467,7 +467,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-dust"),
                 windy: small_icon!("wi-dust"),
-            }
+            },
         };
         let sand = WeatherIcon {
             day: IconSet {
@@ -481,7 +481,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-sandstorm"),
                 windy: small_icon!("wi-sandstorm"),
-            }
+            },
         };
         let squalls = WeatherIcon {
             day: IconSet {
@@ -495,7 +495,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-cloudy-gusts"),
                 windy: small_icon!("wi-cloudy-gusts"),
-            }
+            },
         };
         let tornado = WeatherIcon {
             day: IconSet {
@@ -509,7 +509,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-tornado"),
                 windy: small_icon!("wi-tornado"),
-            }
+            },
         };
         let volcanic = WeatherIcon {
             day: IconSet {
@@ -523,7 +523,7 @@ impl WeatherIconSet {
             cloudy: IconSet {
                 clear: small_icon!("wi-volcano"),
                 windy: small_icon!("wi-volcano"),
-            }
+            },
         };
 
         Ok(Self {
