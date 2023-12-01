@@ -13,9 +13,10 @@ opt-level = "s"
 debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
 
-[features]
-default = ["std", "embassy", "esp-idf-svc/native"]
 
+[features]
+default = ["std", "embassy", "display-simulator", "esp-idf-svc/native"]
+display-simulator = []
 pio = ["esp-idf-svc/pio"]
 std = ["alloc", "esp-idf-svc/binstart", "esp-idf-svc/std"]
 alloc = ["esp-idf-svc/alloc"]
@@ -38,10 +39,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 toml-cfg = "0.1.3"
 
-u8g2-fonts = { version = "0.3.0", features = ["std", "embedded_graphics_textstyle"] }
+u8g2-fonts = { version = "0.4.0", features = ["std", "embedded_graphics_textstyle"] }
 tinyqoi = "0.2.0"
 time = { version = "0.3.30", features = ["std", "formatting"] }
-itertools = "0.11.0"
+itertools = "0.12.0"
 thiserror = "1.0"
 
 [build-dependencies]

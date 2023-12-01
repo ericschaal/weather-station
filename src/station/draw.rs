@@ -10,6 +10,7 @@ use embedded_graphics::pixelcolor::BinaryColor;
 use embedded_graphics::{geometry::*, image::*, prelude::*, primitives::*};
 use itertools::Itertools;
 use std::cmp::max;
+use std::marker::PhantomData;
 use u8g2_fonts::{fonts, types::*, FontRenderer};
 const MARGIN: u32 = 8;
 // Seems like icons have a bunch of padding on the horizontal axis
@@ -31,13 +32,20 @@ pub struct DisplayRect {
     pub chart: Rectangle,
 }
 
-pub struct WeatherStationDraw {
+pub struct WeatherStationDraw<T>
+where
+    T: Display,
+{
     rect: DisplayRect,
     large_icon_set: WeatherIconSet,
     small_icon_set: WeatherIconSet,
+    _phantom: PhantomData<T>,
 }
 
-impl Default for WeatherStationDraw {
+impl<T> Default for WeatherStationDraw<T>
+where
+    T: Display,
+{
     fn default() -> Self {
         let viewport_size = Size::new(DISPLAY_WIDTH - MARGIN, DISPLAY_HEIGHT - MARGIN);
         let current_icon_size = Size::new(196 - IMG_ICON_PADDING, 196);
@@ -139,12 +147,16 @@ impl Default for WeatherStationDraw {
             rect,
             large_icon_set,
             small_icon_set,
+            _phantom: PhantomData::default(),
         }
     }
 }
 
-impl WeatherStationDraw {
-    pub fn draw_weather_report(&self, display: &mut Display, weather: WeatherData) -> Result<()> {
+impl<T> WeatherStationDraw<T>
+where
+    T: Display,
+{
+    pub fn draw_weather_report(&self, display: &mut T, weather: WeatherData) -> Result<()> {
         let app_config = CONFIG;
         let location_name = app_config.location_name;
         let current = weather.current.unwrap();
@@ -165,11 +177,11 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    pub fn draw_ambient_data(&self, display: &mut Display) -> Result<()> {
+    pub fn draw_ambient_data(&self, display: &mut T) -> Result<()> {
         Ok(())
     }
 
-    fn current_weather_icon(&self, display: &mut Display, current: &CurrentWeather) -> Result<()> {
+    fn current_weather_icon(&self, display: &mut T, current: &CurrentWeather) -> Result<()> {
         let icon = get_icon_for_current_weather(&self.large_icon_set, current);
         Image::new(
             icon,
@@ -182,7 +194,7 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    fn current_temp_unit(&self, display: &mut Display) -> Result<()> {
+    fn current_temp_unit(&self, display: &mut T) -> Result<()> {
         let unit_style = PrimitiveStyleBuilder::new()
             .stroke_width(4)
             .stroke_color(BinaryColor::On)
@@ -201,7 +213,7 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    fn current_feels_like(&self, display: &mut Display, current: &CurrentWeather) -> Result<()> {
+    fn current_feels_like(&self, display: &mut T, current: &CurrentWeather) -> Result<()> {
         let font = FontRenderer::new::<fonts::u8g2_font_profont22_tf>();
 
         font.render_aligned(
@@ -217,7 +229,7 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    fn current_temperature(&self, display: &mut Display, current: &CurrentWeather) -> Result<()> {
+    fn current_temperature(&self, display: &mut T, current: &CurrentWeather) -> Result<()> {
         let large_font = FontRenderer::new::<fonts::u8g2_font_logisoso92_tn>();
 
         large_font
@@ -236,7 +248,7 @@ impl WeatherStationDraw {
 
     fn date_and_location(
         &self,
-        display: &mut Display,
+        display: &mut T,
         current_time: u64,
         location_name: &str,
     ) -> Result<()> {
@@ -271,7 +283,7 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    fn daily_forecast(&self, display: &mut Display, forecast: &[DailyForecast]) -> Result<()> {
+    fn daily_forecast(&self, display: &mut T, forecast: &[DailyForecast]) -> Result<()> {
         let icons = &self.small_icon_set;
 
         for (index, rec) in self.rect.forecasts.iter().enumerate() {
@@ -317,7 +329,7 @@ impl WeatherStationDraw {
 
     fn draw_chart(
         &self,
-        display: &mut Display,
+        display: &mut T,
         timezone_offset: i64,
         forecast: &Vec<HourlyForecast>,
     ) -> Result<()> {
@@ -442,7 +454,7 @@ impl WeatherStationDraw {
         Ok(())
     }
 
-    fn debug_draw_rect(&self, display: &mut Display) -> Result<()> {
+    fn debug_draw_rect(&self, display: &mut T) -> Result<()> {
         let style = PrimitiveStyleBuilder::new()
             .stroke_color(BinaryColor::On)
             .stroke_width(1)
