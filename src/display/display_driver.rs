@@ -11,6 +11,7 @@ pub struct DisplayDriver {
     spi: SpiDeviceDriver<'static, SpiDriver<'static>>,
     pins: DisplayPins,
     config: DisplayDriverConfig,
+    delay: Delay,
 }
 
 pub struct DisplayPins {
@@ -34,6 +35,7 @@ impl DisplayDriver {
             spi: driver,
             pins,
             config,
+            delay: Delay::new_default(),
         }
     }
 
@@ -46,7 +48,7 @@ impl DisplayDriver {
     pub fn refresh(&mut self) -> Result<(), EspError> {
         info!("Display refresh");
         self.cmd(Command::DisplayRefresh)?;
-        Delay::delay_ms(50);
+        self.delay.delay_ms(50);
 
         self.wait_until_idle()
     }
@@ -59,7 +61,7 @@ impl DisplayDriver {
 
         self.cmd_with_data(Command::PowerSetting, &[0x07, 0x07, 0x3f, 0x3f])?;
         self.cmd(Command::PowerOn)?;
-        Delay::delay_ms(100);
+        self.delay.delay_ms(100);
 
         self.cmd_with_data(Command::PanelSetting, &[0x1F])?;
         self.cmd_with_data(Command::TconResolution, &[0x03, 0x20, 0x01, 0xE0])?;
@@ -80,7 +82,7 @@ impl DisplayDriver {
         info!("Waiting for display to become idle");
         while self.is_busy() {
             if !self.config.delay.is_zero() {
-                Delay::delay_ms(self.config.delay.as_millis() as u32);
+                self.delay.delay_ms(self.config.delay.as_millis() as u32);
             }
         }
         info!("Display is idle");
@@ -138,13 +140,13 @@ impl DisplayDriver {
 
     pub fn reset(&mut self) -> Result<(), EspError> {
         self.pins.rst.set_high()?;
-        Delay::delay_ms(200);
+        self.delay.delay_ms(200);
 
         self.pins.rst.set_low()?;
-        Delay::delay_ms(2);
+        self.delay.delay_ms(2);
 
         self.pins.rst.set_high()?;
-        Delay::delay_ms(200);
+        self.delay.delay_ms(200);
 
         Ok(())
     }

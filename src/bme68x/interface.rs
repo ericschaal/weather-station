@@ -1,4 +1,4 @@
-use esp_idf_hal::delay::BLOCK;
+use esp_idf_hal::delay::{Delay, BLOCK};
 use esp_idf_hal::i2c::I2cDriver;
 use std::fmt::Debug;
 use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
@@ -7,6 +7,7 @@ use thiserror::Error;
 pub struct Bme68xInterface {
     pub i2c: I2cDriver<'static>,
     pub address: u8,
+    pub delay: Delay,
 }
 
 impl Debug for Bme68xInterface {
@@ -55,7 +56,11 @@ pub fn check_rslt(rslt: i8) -> Result<(), Bme68xInterfaceError> {
 
 impl Bme68xInterface {
     pub fn new(i2c: I2cDriver<'static>, address: u8) -> Self {
-        Self { i2c, address }
+        Self {
+            i2c,
+            address,
+            delay: Delay::new_default(),
+        }
     }
 
     fn read(&mut self, reg_addr: u8, reg_data: &mut [u8]) -> Result<(), Bme68xInterfaceError> {
@@ -98,5 +103,9 @@ impl Bme68xInterface {
         } else {
             -1
         }
+    }
+
+    pub fn delay_us(&self, us: u32) {
+        self.delay.delay_us(us)
     }
 }

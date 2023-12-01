@@ -1,8 +1,10 @@
 use anyhow::{bail, Result};
-use embedded_svc::wifi::{AuthMethod, ClientConfiguration, Configuration};
 use esp_idf_hal::peripheral;
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
-use esp_idf_svc::{eventloop::EspSystemEventLoop, wifi::BlockingWifi, wifi::EspWifi};
+use esp_idf_svc::{
+    eventloop::EspSystemEventLoop,
+    wifi::{AuthMethod, BlockingWifi, ClientConfiguration, Configuration, EspWifi},
+};
 use log::info;
 
 pub fn wifi(

@@ -28,6 +28,10 @@ pub unsafe extern "C" fn write_wrapper(
     }
 }
 
-pub unsafe extern "C" fn delay_wrapper(period: u32, _: *mut ::std::os::raw::c_void) {
-    Delay::delay_us(period);
+pub unsafe extern "C" fn delay_wrapper(period: u32, intf_ptr: *mut ::std::os::raw::c_void) {
+    let instance = NonNull::new(intf_ptr as *mut Bme68xInterface);
+    match instance {
+        Some(mut instance) => instance.as_ref().delay_us(period),
+        None => panic!("Interface pointer not set."),
+    }
 }
