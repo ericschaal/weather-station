@@ -11,11 +11,11 @@ use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
 use std::time::Duration;
 use weather_station::bme68x::BmeDevice;
-#[cfg(not(feature = "display-simulator"))]
-use weather_station::display::physical::PhysicalDisplay;
 #[cfg(feature = "display-simulator")]
 use weather_station::display::simulator::SimulatorDisplay;
-use weather_station::{config::*, display::display_driver::*, display::*, station::*, wifi::*};
+#[cfg(not(feature = "display-simulator"))]
+use weather_station::display::{display_driver::*, physical::PhysicalDisplay, DisplayConfig};
+use weather_station::{config::*, station::*, wifi::*};
 
 fn main() -> Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -36,7 +36,7 @@ fn main() -> Result<()> {
         app_config.wifi_psk,
         peripherals.modem,
         sysloop,
-        Some(nvs)
+        Some(nvs),
     )?;
 
     let pins = peripherals.pins;
@@ -52,6 +52,10 @@ fn main() -> Result<()> {
         BmeDevice::new(i2c_driver)
     }?;
 
+    #[cfg(feature = "display-simulator")]
+    let display = SimulatorDisplay::new()?;
+
+    #[cfg(not(feature = "display-simulator"))]
     let display = {
         let spi = peripherals.spi2;
 
@@ -74,11 +78,6 @@ fn main() -> Result<()> {
         )
         .unwrap();
 
-
-        #[cfg(feature = "display-simulator")]
-        let display = SimulatorDisplay::new();
-
-        #[cfg(not(feature = "display-simulator"))]
         let display_driver = DisplayDriver::new(
             spi_driver,
             DisplayPins {
@@ -92,7 +91,6 @@ fn main() -> Result<()> {
             },
         );
 
-        #[cfg(not(feature = "display-simulator"))]
         let display = PhysicalDisplay::new(
             display_driver,
             DisplayConfig {

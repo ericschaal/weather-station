@@ -1,6 +1,5 @@
-use crate::icons::{WeatherIcon, WeatherIconSet};
+use crate::icons::{IconSize, WeatherIcon, WeatherIconSet, ICONS};
 use crate::owm::model::{CurrentWeather, DailyForecast, WeatherConditionId};
-use log::info;
 use tinyqoi::Qoi;
 
 pub fn get_icon<'a>(icon: &'a WeatherIcon, night: bool, cloudy: bool, windy: bool) -> &Qoi<'a> {
@@ -25,10 +24,11 @@ pub fn get_icon<'a>(icon: &'a WeatherIcon, night: bool, cloudy: bool, windy: boo
     }
 }
 
-pub fn get_icon_for_daily_forecast<'a>(
-    icons: &'a WeatherIconSet,
-    forecast: &'a DailyForecast,
-) -> &'a Qoi<'a> {
+pub fn get_icon_for_daily_forecast<'a>(size: IconSize, forecast: &'a DailyForecast) -> &'a Qoi<'a> {
+    let icons = match size {
+        IconSize::Small => &ICONS.small,
+        IconSize::Large => &ICONS.large,
+    };
     let is_cloudy = forecast.clouds >= 60;
     let is_windy = forecast.wind_speed >= 32.2 || forecast.wind_gust.unwrap_or(0.0) >= 40.2;
 
@@ -40,9 +40,14 @@ pub fn get_icon_for_daily_forecast<'a>(
 }
 
 pub fn get_icon_for_current_weather<'a>(
-    icons: &'a WeatherIconSet,
+    size: IconSize,
     current: &'a CurrentWeather,
 ) -> &'a Qoi<'a> {
+    let icons = match size {
+        IconSize::Small => &ICONS.small,
+        IconSize::Large => &ICONS.large,
+    };
+
     let is_cloudy = current.clouds >= 60;
     let is_windy = current.wind_speed >= 32.2 || current.wind_gust.unwrap_or(0.0) >= 40.2;
     let is_night = current.dt >= current.sunset || current.dt <= current.sunrise;

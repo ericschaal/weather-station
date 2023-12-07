@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct WeatherData {
     pub lat: f32,
     pub lon: f32,
@@ -13,7 +13,7 @@ pub struct WeatherData {
     pub alerts: Option<Vec<Alert>>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct CurrentWeather {
     pub dt: u64,
     pub sunrise: u64,
@@ -32,13 +32,13 @@ pub struct CurrentWeather {
     pub weather: Vec<WeatherCondition>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct MinuteForecast {
     pub dt: u64,
     pub precipitation: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct HourlyForecast {
     pub dt: u64,
     pub temp: f32,
@@ -56,7 +56,7 @@ pub struct HourlyForecast {
     pub pop: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct DailyForecast {
     pub dt: u64,
     pub sunrise: u64,
@@ -81,7 +81,7 @@ pub struct DailyForecast {
     pub uvi: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Temperature {
     pub morn: f32,
     pub day: f32,
@@ -91,7 +91,7 @@ pub struct Temperature {
     pub max: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FeelsLikeTemperature {
     pub morn: f32,
     pub day: f32,
@@ -99,7 +99,7 @@ pub struct FeelsLikeTemperature {
     pub night: f32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct WeatherCondition {
     pub id: u16,
     pub main: String,
@@ -107,7 +107,7 @@ pub struct WeatherCondition {
     pub icon: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Alert {
     pub sender_name: String,
     pub event: String,
@@ -117,7 +117,7 @@ pub struct Alert {
     pub tags: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum WeatherConditionId {
     ThunderstormWithLightRain,
     ThunderstormWithRain,

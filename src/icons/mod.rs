@@ -1,5 +1,17 @@
-use anyhow::Result;
+use lazy_static::lazy_static;
 use tinyqoi::Qoi;
+
+lazy_static! {
+    pub static ref ICONS: Icons = Icons {
+        large: WeatherIconSet::new(),
+        small: WeatherIconSet::new_small(),
+    };
+}
+
+pub enum IconSize {
+    Large,
+    Small,
+}
 
 pub struct IconSet {
     pub windy: Qoi<'static>,
@@ -10,6 +22,11 @@ pub struct WeatherIcon {
     pub day: IconSet,
     pub night: IconSet,
     pub cloudy: IconSet,
+}
+
+pub struct Icons {
+    pub large: WeatherIconSet,
+    pub small: WeatherIconSet,
 }
 
 pub struct WeatherIconSet {
@@ -52,7 +69,7 @@ macro_rules! small_icon {
 }
 
 impl WeatherIconSet {
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Self {
         let clear = WeatherIcon {
             day: IconSet {
                 clear: large_icon!("wi-day-sunny"),
@@ -278,7 +295,7 @@ impl WeatherIconSet {
             },
         };
 
-        Ok(Self {
+        Self {
             HEIGHT: 196,
             WIDTH: 196,
             clear,
@@ -297,10 +314,10 @@ impl WeatherIconSet {
             volcanic,
             squalls,
             tornado,
-        })
+        }
     }
 
-    pub fn new_small() -> Result<Self> {
+    pub fn new_small() -> Self {
         let clear = WeatherIcon {
             day: IconSet {
                 clear: small_icon!("wi-day-sunny"),
@@ -526,7 +543,7 @@ impl WeatherIconSet {
             },
         };
 
-        Ok(Self {
+        Self {
             HEIGHT: 64,
             WIDTH: 64,
             clear,
@@ -545,6 +562,6 @@ impl WeatherIconSet {
             volcanic,
             squalls,
             tornado,
-        })
+        }
     }
 }

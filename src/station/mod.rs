@@ -1,14 +1,16 @@
 mod ambient;
 mod current_weather;
 mod draw;
+mod ui;
 
 use crate::bme68x::BmeDevice;
 use crate::display::Display;
-use crate::icons::WeatherIconSet;
+use crate::icons::Icons;
 use crate::owm::api::fetch_owm_report;
 use crate::station::ambient::Ambient;
-use crate::station::draw::WeatherStationDraw;
+use crate::station::ui::WeatherStationUI;
 use anyhow::Result;
+use embedded_graphics::Drawable;
 use std::thread;
 use std::time::Duration;
 
@@ -17,13 +19,8 @@ where
     T: Display,
 {
     display: T,
-    draw: WeatherStationDraw<T>,
+    ui: WeatherStationUI,
     ambient: Ambient,
-}
-
-pub struct Icons {
-    pub large: WeatherIconSet,
-    pub small: WeatherIconSet,
 }
 
 impl<T> WeatherStation<T>
@@ -34,7 +31,7 @@ where
         WeatherStation {
             display,
             ambient: Ambient::new(bme),
-            draw: WeatherStationDraw::default(),
+            ui: WeatherStationUI::new(),
         }
     }
     pub fn run(&mut self) -> Result<()> {
@@ -43,9 +40,12 @@ where
         loop {
             let weather = fetch_owm_report()?;
             // let sensor_data = self.ambient.get_readings()?;
-
             self.display.wake_up()?;
-            self.draw.draw_weather_report(&mut self.display, weather)?;
+
+            self.ui.update(&weather)?;
+
+            self.ui.draw(&mut self.display)?;
+
             self.display.flush_and_refresh()?;
             self.display.sleep()?;
             thread::sleep(Duration::from_secs(10 * 60));

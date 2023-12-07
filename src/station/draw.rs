@@ -1,7 +1,7 @@
 use crate::chart::scales::linear::ScaleLinear;
 use crate::config::CONFIG;
 use crate::display::{Display, DISPLAY_HEIGHT, DISPLAY_WIDTH};
-use crate::icons::WeatherIconSet;
+use crate::icons::{IconSize, WeatherIconSet, ICONS};
 use crate::owm::icons::{get_icon_for_current_weather, get_icon_for_daily_forecast};
 use crate::owm::model::{CurrentWeather, HourlyForecast};
 use crate::owm::model::{DailyForecast, WeatherData};
@@ -140,8 +140,8 @@ where
             chart,
         };
 
-        let large_icon_set = WeatherIconSet::new().unwrap();
-        let small_icon_set = WeatherIconSet::new_small().unwrap();
+        let large_icon_set = WeatherIconSet::new();
+        let small_icon_set = WeatherIconSet::new_small();
 
         WeatherStationDraw {
             rect,
@@ -182,7 +182,7 @@ where
     }
 
     fn current_weather_icon(&self, display: &mut T, current: &CurrentWeather) -> Result<()> {
-        let icon = get_icon_for_current_weather(&self.large_icon_set, current);
+        let icon = get_icon_for_current_weather(IconSize::Large, current);
         Image::new(
             icon,
             self.rect
@@ -284,17 +284,19 @@ where
     }
 
     fn daily_forecast(&self, display: &mut T, forecast: &[DailyForecast]) -> Result<()> {
-        let icons = &self.small_icon_set;
-
         for (index, rec) in self.rect.forecasts.iter().enumerate() {
+            let small_icon_size = Size::new(ICONS.small.WIDTH, ICONS.small.HEIGHT);
             let daily = &forecast[index];
-            let icon = get_icon_for_daily_forecast(icons, daily);
-            let img_center_offset = Point::new((icons.WIDTH / 2) as i32, (icons.HEIGHT / 2) as i32);
+            let icon = get_icon_for_daily_forecast(IconSize::Small, daily);
+            let img_center_offset = Point::new(
+                (small_icon_size.width / 2) as i32,
+                (small_icon_size.height / 2) as i32,
+            );
 
             Image::new(icon, rec.bounding_box().center() - img_center_offset)
                 .draw(&mut display.color_converted())?;
 
-            let txt_offset = Point::new(0, (icons.HEIGHT / 2 + MARGIN) as i32);
+            let txt_offset = Point::new(0, (small_icon_size.height / 2 + MARGIN) as i32);
 
             // Draw day of week
             let font = FontRenderer::new::<fonts::u8g2_font_profont22_tf>();
